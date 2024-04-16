@@ -1,35 +1,69 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
+
+function fetchTodos() {
+  const result = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const value = localStorage.key(i);
+    result.push(value);
+  }
+  return result;
+}
 
 function App() {
-  const [count, setCount] = useState(0)
+  // const [count, setCount] = useState(0);
+  const [inputText, setInputText] = useState("");
+  const [todos, setTodos] = useState(fetchTodos());
+
+  const handleInput = (event) => {
+    const value = event.target.value;
+    setInputText(value);
+  };
+
+  const handleClick = () => {
+    localStorage.setItem(inputText, inputText);
+    setInputText("");
+    setTodos((currentTodos) => {
+      return [...currentTodos, inputText];
+    })
+  };
+
+  const handleRemove = (todo, index) => {
+    const result = todos.filter((todoItem) => {
+      if (todoItem != todo) {
+        return true;
+      }
+    });
+    setTodos(result);
+    localStorage.removeItem(todo);
+  };
 
   return (
     <>
       <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <h1>TODO 앱</h1>
+        <div>
+          <input type="text" value={inputText} onChange={handleInput} />
+          <button onClick={handleClick}>add</button>
+        </div>
+        <div>
+          <ul>
+            {todos.map((todo, index) => {
+              return (
+                <li key={index}>
+                  <span>{todo}</span>
+                  <button onClick={() => handleRemove(todo, index)}>
+                    remove
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
